@@ -1,6 +1,6 @@
 {
   "name": "@kamleshchandel/react-select-kc",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Universal controlled and uncontrolled select component for React",
   "main": "./dist/react-select-kc.cjs.js",
   "module": "./dist/react-select-kc.es.js",
@@ -13,7 +13,7 @@
     ".": {
       "import": "./dist/react-select-kc.es.js",
       "require": "./dist/react-select-kc.cjs.js",
-      "types" : "./types/index.d.ts"
+      "types": "./types/index.d.ts"
     },
     "./style.css": "./dist/style.css"
   },
