@@ -12,8 +12,10 @@
   "exports": {
     ".": {
       "import": "./dist/react-select-kc.es.js",
-      "require": "./dist/react-select-kc.cjs.js"
+      "require": "./dist/react-select-kc.cjs.js",
+      "default": "./dist/react-select-kc.es.js"
     },
+    "./types": "./types/index.d.ts",
     "./style.css": "./dist/style.css"
   },
   "peerDependencies": {
