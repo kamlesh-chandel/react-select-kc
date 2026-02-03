@@ -7,13 +7,13 @@ import React, {
 } from "react";
 import "./style.css";
 
-export interface UniversalSelectOption {
+export interface SmartSelectOption {
   id: string | number;
   label: string;
   disabled?: boolean;
 }
 
-export interface UniversalSelectStyle {
+export interface SmartSelectStyle {
   selectWrapper?: React.CSSProperties;
   optionsList?: React.CSSProperties;
   highlightOption?: React.CSSProperties;
@@ -21,26 +21,26 @@ export interface UniversalSelectStyle {
   selectedOption?: React.CSSProperties;
 }
 
-export interface UniversalSelectProps {
-  options?: UniversalSelectOption[];
-  loadAsyncOptions?: (query: string) => Promise<UniversalSelectOption[]>;
-  value?: UniversalSelectOption | UniversalSelectOption[] | null;
+export interface SmartSelectProps {
+  options?: SmartSelectOption[];
+  loadAsyncOptions?: (query: string) => Promise<SmartSelectOption[]>;
+  value?: SmartSelectOption | SmartSelectOption[] | null;
   onChange?: (
-    value: UniversalSelectOption | UniversalSelectOption[] | null,
+    value: SmartSelectOption | SmartSelectOption[] | null,
   ) => void;
   label?: string;
   isMultiSelectAllow?: boolean;
   closeOnOutsideClick?: boolean;
   isClearOptionAllow?: boolean;
   isSearchAllow?: boolean;
-  selectStyle?: UniversalSelectStyle;
-  renderOption?: (option: UniversalSelectOption) => React.ReactNode;
-  renderSelectedOptionChip?: (option: UniversalSelectOption) => React.ReactNode;
+  selectStyle?: SmartSelectStyle;
+  renderOption?: (option: SmartSelectOption) => React.ReactNode;
+  renderSelectedOptionChip?: (option: SmartSelectOption) => React.ReactNode;
 }
 
 const STORAGE_KEY = "UNIVERSAL_SELECT_VALUE";
 
-function isValidOptions(value: unknown): value is UniversalSelectOption[] {
+function isValidOptions(value: unknown): value is SmartSelectOption[] {
   return (
     Array.isArray(value) &&
     value.every(
@@ -53,7 +53,7 @@ function isValidOptions(value: unknown): value is UniversalSelectOption[] {
   );
 }
 
-const UniversalSelect: React.FC<UniversalSelectProps> = ({
+const SmartSelect: React.FC<SmartSelectProps> = ({
   options = [],
   loadAsyncOptions,
   value,
@@ -69,7 +69,7 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState<
-    UniversalSelectOption | UniversalSelectOption[] | null
+    SmartSelectOption | SmartSelectOption[] | null
   >(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -80,7 +80,7 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
   });
 
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const [asyncOptions, setAsyncOptions] = useState<UniversalSelectOption[]>([]);
+  const [asyncOptions, setAsyncOptions] = useState<SmartSelectOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -165,7 +165,7 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
   }, [baseOptions, search, loadAsyncOptions, isSearchAllow]);
 
   const updateSelectedValue = (
-    newValue: UniversalSelectOption | UniversalSelectOption[] | null,
+    newValue: SmartSelectOption | SmartSelectOption[] | null,
   ) => {
     if (value === undefined) {
       setInternalValue(newValue);
@@ -173,10 +173,10 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
     onChange?.(newValue);
   };
 
-  const isOptionSelected = (option: UniversalSelectOption) => {
+  const isOptionSelected = (option: SmartSelectOption) => {
     if (!isMultiSelectAllow) {
       return (
-        (normalizedValue as UniversalSelectOption | null)?.id === option.id
+        (normalizedValue as SmartSelectOption | null)?.id === option.id
       );
     }
     return (
@@ -202,7 +202,7 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
     setIsOpen(false);
   };
 
-  const toggleOption = (option: UniversalSelectOption) => {
+  const toggleOption = (option: SmartSelectOption) => {
     if (!isMultiSelectAllow) {
       updateSelectedValue(option);
       setSearch(option.label);
@@ -215,10 +215,10 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
       normalizedValue.some((o) => o.id === option.id);
 
     const newList = exists
-      ? (normalizedValue as UniversalSelectOption[]).filter(
+      ? (normalizedValue as SmartSelectOption[]).filter(
           (o) => o.id !== option.id,
         )
-      : [...(normalizedValue as UniversalSelectOption[]), option];
+      : [...(normalizedValue as SmartSelectOption[]), option];
 
     updateSelectedValue(newList);
     setSearch("");
@@ -394,8 +394,8 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
         <p>
           {normalizedValue
             ? renderOption
-              ? renderOption(normalizedValue as UniversalSelectOption)
-              : (normalizedValue as UniversalSelectOption).label
+              ? renderOption(normalizedValue as SmartSelectOption)
+              : (normalizedValue as SmartSelectOption).label
             : "Please Select Option"}
         </p>
       );
@@ -454,4 +454,4 @@ const UniversalSelect: React.FC<UniversalSelectProps> = ({
   );
 };
 
-export default UniversalSelect;
+export default SmartSelect;

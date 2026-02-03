@@ -1,7 +1,7 @@
 {
-  "name": "@kamleshchandel/react-select-kc",
-  "version": "1.0.11",
-  "description": "Universal controlled and uncontrolled select component for React",
+  "name": "@kamlesh-chandel/smart-select",
+  "version": "1.0.0",
+  "description": "Smart controlled and uncontrolled select component for React",
   "main": "./dist/react-select-kc.cjs.js",
   "module": "./dist/react-select-kc.es.js",
   "types": "./types/index.d.ts",

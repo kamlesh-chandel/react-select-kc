@@ -1,10 +1,10 @@
-import UniversalSelect from "./UniversalSelect";
+import SmartSelect from "./SmartSelect";
 import type {
-  UniversalSelectOption,
-  UniversalSelectProps,
-} from "./UniversalSelect";
+  SmartSelectOption,
+  SmartSelectProps,
+} from "./SmartSelect";
 
 import "./style.css";
 
-export default UniversalSelect;
-export type { UniversalSelectOption, UniversalSelectProps };
+export default SmartSelect;
+export type { SmartSelectOption, SmartSelectProps };
