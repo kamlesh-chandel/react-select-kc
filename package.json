@@ -11,12 +11,14 @@
   ],
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "import": "./dist/react-select-kc.es.js",
       "require": "./dist/react-select-kc.cjs.js",
       "default": "./dist/react-select-kc.es.js"
     },
+    "./style.css": "./dist/style.css",
     "./types": "./types/index.d.ts",
-    "./style.css": "./dist/style.css"
+    "./types/*": "./types/*"
   },
   "peerDependencies": {
     "react": ">=17",
