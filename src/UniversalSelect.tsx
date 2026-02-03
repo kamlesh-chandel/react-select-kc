@@ -1,9 +1,59 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import "./style.css";
+
+export interface UniversalSelectOption {
+  id: string | number;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface UniversalSelectStyle {
+  selectWrapper?: React.CSSProperties;
+  optionsList?: React.CSSProperties;
+  highlightOption?: React.CSSProperties;
+  disabledOption?: React.CSSProperties;
+  selectedOption?: React.CSSProperties;
+}
+
+export interface UniversalSelectProps {
+  options?: UniversalSelectOption[];
+  loadAsyncOptions?: (query: string) => Promise<UniversalSelectOption[]>;
+  value?: UniversalSelectOption | UniversalSelectOption[] | null;
+  onChange?: (
+    value: UniversalSelectOption | UniversalSelectOption[] | null,
+  ) => void;
+  label?: string;
+  isMultiSelectAllow?: boolean;
+  closeOnOutsideClick?: boolean;
+  isClearOptionAllow?: boolean;
+  isSearchAllow?: boolean;
+  selectStyle?: UniversalSelectStyle;
+  renderOption?: (option: UniversalSelectOption) => React.ReactNode;
+  renderSelectedOptionChip?: (option: UniversalSelectOption) => React.ReactNode;
+}
 
 const STORAGE_KEY = "UNIVERSAL_SELECT_VALUE";
 
-function UniversalSelect({
+function isValidOptions(value: unknown): value is UniversalSelectOption[] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (opt) =>
+        typeof opt === "object" &&
+        opt !== null &&
+        "id" in opt &&
+        "label" in opt,
+    )
+  );
+}
+
+const UniversalSelect: React.FC<UniversalSelectProps> = ({
   options = [],
   loadAsyncOptions,
   value,
@@ -16,20 +66,28 @@ function UniversalSelect({
   selectStyle = {},
   renderOption,
   renderSelectedOptionChip,
-}) {
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : isMultiSelectAllow ? [] : null;
+  const [internalValue, setInternalValue] = useState<
+    UniversalSelectOption | UniversalSelectOption[] | null
+  >(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : isMultiSelectAllow ? [] : null;
+    } catch {
+      return isMultiSelectAllow ? [] : null;
+    }
   });
+
   const [focusedIndex, setFocusedIndex] = useState(-1);
-  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [asyncOptions, setAsyncOptions] = useState<UniversalSelectOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const selectedValue = value !== undefined ? value : internalValue;
 
-  const highlightedRef = useRef(null);
-  const triggerRef = useRef(null);
+  const highlightedRef = useRef<HTMLLIElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+
+  const selectedValue = value !== undefined ? value : internalValue;
 
   const normalizedValue = isMultiSelectAllow
     ? Array.isArray(selectedValue)
@@ -37,14 +95,24 @@ function UniversalSelect({
       : []
     : selectedValue;
 
-  const baseOptions = loadAsyncOptions ? asyncOptions : options;
+  const baseOptions = loadAsyncOptions
+    ? asyncOptions
+    : isValidOptions(options)
+      ? options
+      : [];
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedValue));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedValue));
+    } catch {}
   }, [normalizedValue]);
 
   useEffect(() => {
-    if (!isMultiSelectAllow && normalizedValue?.label) {
+    if (
+      !isMultiSelectAllow &&
+      normalizedValue &&
+      !Array.isArray(normalizedValue)
+    ) {
       setSearch(normalizedValue.label);
     }
   }, [normalizedValue, isMultiSelectAllow]);
@@ -53,19 +121,23 @@ function UniversalSelect({
     if (!loadAsyncOptions) return;
     setLoading(true);
 
-    const resultOptions = await loadAsyncOptions(search);
+    try {
+      const resultOptions = await loadAsyncOptions(search);
+      if (!isValidOptions(resultOptions)) return;
 
-    setLoading(false);
-    if (!resultOptions) return;
-    setAsyncOptions((prev) =>
-      reset ? resultOptions : [...prev, ...resultOptions],
-    );
+      setAsyncOptions((prev) =>
+        reset ? resultOptions : [...prev, ...resultOptions],
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchOptions(true);
     }, 400);
+
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -79,28 +151,38 @@ function UniversalSelect({
   }, [closeOnOutsideClick]);
 
   useLayoutEffect(() => {
-    highlightedRef?.current?.scrollIntoView({ top: 0 });
+    highlightedRef.current?.scrollIntoView({
+      block: "nearest",
+    });
   }, [focusedIndex]);
 
   const filteredOptions = useMemo(() => {
     if (loadAsyncOptions || !isSearchAllow) return baseOptions;
+
     return baseOptions.filter((option) =>
       option.label.toLowerCase().includes(search.toLowerCase()),
     );
-  }, [baseOptions, search, loadAsyncOptions]);
+  }, [baseOptions, search, loadAsyncOptions, isSearchAllow]);
 
-  const updateSelectedValue = (newValue) => {
+  const updateSelectedValue = (
+    newValue: UniversalSelectOption | UniversalSelectOption[] | null,
+  ) => {
     if (value === undefined) {
       setInternalValue(newValue);
     }
     onChange?.(newValue);
   };
 
-  const isOptionSelected = (option) => {
+  const isOptionSelected = (option: UniversalSelectOption) => {
     if (!isMultiSelectAllow) {
-      return normalizedValue?.id === option.id;
+      return (
+        (normalizedValue as UniversalSelectOption | null)?.id === option.id
+      );
     }
-    return normalizedValue.some((value) => value.id === option.id);
+    return (
+      Array.isArray(normalizedValue) &&
+      normalizedValue.some((value) => value.id === option.id)
+    );
   };
 
   const closeOptions = () => {
@@ -110,17 +192,17 @@ function UniversalSelect({
       try {
         const storedValue = localStorage.getItem(STORAGE_KEY);
         const parsed = storedValue ? JSON.parse(storedValue) : null;
-
         setSearch(parsed?.label || "");
       } catch {
         setSearch("");
       }
     }
+
     setFocusedIndex(-1);
     setIsOpen(false);
   };
 
-  const toggleOption = (option) => {
+  const toggleOption = (option: UniversalSelectOption) => {
     if (!isMultiSelectAllow) {
       updateSelectedValue(option);
       setSearch(option.label);
@@ -128,20 +210,25 @@ function UniversalSelect({
       return;
     }
 
-    const exists = normalizedValue.some((o) => o.id === option.id);
+    const exists =
+      Array.isArray(normalizedValue) &&
+      normalizedValue.some((o) => o.id === option.id);
 
     const newList = exists
-      ? normalizedValue.filter((o) => o.id !== option.id)
-      : [...normalizedValue, option];
+      ? (normalizedValue as UniversalSelectOption[]).filter(
+          (o) => o.id !== option.id,
+        )
+      : [...(normalizedValue as UniversalSelectOption[]), option];
 
     updateSelectedValue(newList);
     setSearch("");
+
     requestAnimationFrame(() => {
       triggerRef.current?.focus();
     });
   };
 
-  const handleKeyboardNavigation = (e) => {
+  const handleKeyboardNavigation = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!baseOptions.length) return;
 
     if (e.key === "ArrowDown") {
@@ -153,82 +240,54 @@ function UniversalSelect({
     } else if (e.key === "Enter") {
       e.preventDefault();
       const option = baseOptions[focusedIndex];
-
       if (!option || option.disabled) return;
       toggleOption(option);
-      requestAnimationFrame(() => {
-        triggerRef.current?.focus();
-      });
     } else if (e.key === "Escape") {
       closeOptions();
     }
   };
 
-  const handleInfiniteScroll = (e) => {
+  const handleInfiniteScroll = (e: React.UIEvent<HTMLUListElement>) => {
     if (loading) return;
 
-    if (
-      e.target.scrollTop + e.target.clientHeight >=
-      e.target.scrollHeight - 5
-    ) {
+    const target = e.currentTarget;
+    if (target.scrollTop + target.clientHeight >= target.scrollHeight - 5) {
       fetchOptions();
     }
   };
 
-  const handleToggleOptions = (e) => {
-    e.stopPropagation();
-    setFocusedIndex(-1);
-    setIsOpen((prev) => !prev);
-  };
-
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-    setFocusedIndex(-1);
-  };
-
-  const getOptionStyle = (isDisabled, isFocused, isSelected) => {
+  const getOptionStyle = (
+    isDisabled: boolean,
+    isFocused: boolean,
+    isSelected: boolean,
+  ): React.CSSProperties => {
     return {
-      ...(isDisabled && selectStyle?.disabledOption),
-      ...(isFocused && selectStyle?.highlightOption),
-      ...(isSelected && selectStyle?.selectedOption),
+      ...(isDisabled && selectStyle.disabledOption),
+      ...(isFocused && selectStyle.highlightOption),
+      ...(isSelected && selectStyle.selectedOption),
     };
   };
 
-  const getOptionClassName = (isDisabled, isFocused, isSelected) => {
+  const getOptionClassName = (
+    isDisabled: boolean,
+    isFocused: boolean,
+    isSelected: boolean,
+  ) => {
     return [
       "custom-select-option",
       isDisabled && "disabled",
       isSelected && "selected",
       isFocused && "highlight",
-    ].join(" ");
+    ]
+      .filter(Boolean)
+      .join(" ");
   };
 
   const renderOptions = () => {
     return filteredOptions.map((option, index) => {
-      const isDisabled = option.disabled;
+      const isDisabled = !!option.disabled;
       const isFocused = index === focusedIndex;
       const isSelected = isOptionSelected(option);
-
-      const renderOptionContent = () => {
-        if (!isMultiSelectAllow) {
-          return (
-            <span className="option-label">
-              {renderOption ? renderOption(option) : option.label}
-            </span>
-          );
-        }
-        return (
-          <div className={`option-label ${isDisabled && "disabled"}`}>
-            <input
-              type="checkbox"
-              checked={isSelected}
-              disabled={option.disabled}
-              readOnly
-            />
-            {renderOption ? renderOption(option) : option.label}
-          </div>
-        );
-      };
 
       return (
         <li
@@ -241,35 +300,45 @@ function UniversalSelect({
             toggleOption(option);
           }}
         >
-          {renderOptionContent()}
+          {!isMultiSelectAllow ? (
+            <span className="option-label">
+              {renderOption ? renderOption(option) : option.label}
+            </span>
+          ) : (
+            <div className={`option-label ${isDisabled ? "disabled" : ""}`}>
+              <input
+                type="checkbox"
+                checked={isSelected}
+                disabled={isDisabled}
+                readOnly
+              />
+              {renderOption ? renderOption(option) : option.label}
+            </div>
+          )}
         </li>
       );
     });
   };
 
-  const handleClearAllValue = (e) => {
-    e.stopPropagation();
-    updateSelectedValue(isMultiSelectAllow ? [] : null);
-    setSearch("");
-    setFocusedIndex(-1);
-  };
-
   const renderActionIcon = () => {
-    const hasSingleSelection =
-      normalizedValue &&
-      typeof normalizedValue === "object" &&
-      "id" in normalizedValue;
-
     const hasSelection = isMultiSelectAllow
-      ? normalizedValue.length > 0
-      : hasSingleSelection;
+      ? Array.isArray(normalizedValue) && normalizedValue.length > 0
+      : !!normalizedValue;
 
-    if (loading) {
-      return <span>Loading...</span>;
-    }
+    if (loading) return <span>Loading...</span>;
 
     if (isClearOptionAllow && hasSelection) {
-      return <span onClick={handleClearAllValue}>Clear</span>;
+      return (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            updateSelectedValue(isMultiSelectAllow ? [] : null);
+            setSearch("");
+          }}
+        >
+          Clear
+        </span>
+      );
     }
 
     return <span>{isOpen ? "↑" : "↓"}</span>;
@@ -277,6 +346,8 @@ function UniversalSelect({
 
   const renderSelectContent = () => {
     const renderSelectedOptionList = () => {
+      if (!Array.isArray(normalizedValue)) return null;
+
       return normalizedValue.map((option) => (
         <div className="multiple-options" key={option.id}>
           {renderSelectedOptionChip
@@ -294,19 +365,17 @@ function UniversalSelect({
       ));
     };
 
-    const renderSearchInput = () => {
-      return (
-        <input
-          onChange={handleSearch}
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(true);
-          }}
-          placeholder="Search Here"
-          value={search}
-        />
-      );
-    };
+    const renderSearchInput = () => (
+      <input
+        onChange={(e) => setSearch(e.target.value)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(true);
+        }}
+        placeholder="Search Here"
+        value={search}
+      />
+    );
 
     if (isSearchAllow) {
       if (!isMultiSelectAllow) {
@@ -325,14 +394,14 @@ function UniversalSelect({
         <p>
           {normalizedValue
             ? renderOption
-              ? renderOption(normalizedValue)
-              : normalizedValue.label
+              ? renderOption(normalizedValue as UniversalSelectOption)
+              : (normalizedValue as UniversalSelectOption).label
             : "Please Select Option"}
         </p>
       );
     }
 
-    if (normalizedValue.length <= 0) {
+    if (Array.isArray(normalizedValue) && normalizedValue.length <= 0) {
       return <p>Please Select Options</p>;
     }
 
@@ -344,18 +413,17 @@ function UniversalSelect({
   };
 
   return (
-    <div
-      className="custom-select"
-      style={selectStyle.selectWrapper && selectStyle.selectWrapper}
-    >
+    <div className="custom-select" style={selectStyle.selectWrapper}>
       <label className="custom-select-label">{label}</label>
 
       <div
-        type="button"
         ref={triggerRef}
         className="custom-select-trigger"
-        tabIndex={0} //browsers only fire keydown events on focused elements, to make it focus we use this.
-        onClick={handleToggleOptions}
+        tabIndex={0}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen((prev) => !prev);
+        }}
         onKeyDown={handleKeyboardNavigation}
       >
         {renderSelectContent()}
@@ -367,7 +435,7 @@ function UniversalSelect({
           {filteredOptions.length > 0 && (
             <ul
               className="custom-select-options"
-              style={selectStyle.optionsList && selectStyle.optionsList}
+              style={selectStyle.optionsList}
               onScroll={handleInfiniteScroll}
             >
               {renderOptions()}
@@ -384,6 +452,6 @@ function UniversalSelect({
       )}
     </div>
   );
-}
+};
 
 export default UniversalSelect;
