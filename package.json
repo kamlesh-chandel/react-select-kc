@@ -2,9 +2,9 @@
   "name": "@kamleshchandel/react-select-kc",
   "version": "1.0.6",
   "description": "Universal controlled and uncontrolled select component for React",
-  "main": "dist/react-select-kc.cjs.js",
-  "module": "dist/react-select-kc.es.js",
-  "types": "types/index.d.ts",
+  "main": "./dist/react-select-kc.cjs.js",
+  "module": "./dist/react-select-kc.es.js",
+  "types": "./types/index.d.ts",
   "files": [
     "dist",
     "types"
@@ -12,7 +12,8 @@
   "exports": {
     ".": {
       "import": "./dist/react-select-kc.es.js",
-      "require": "./dist/react-select-kc.cjs.js"
+      "require": "./dist/react-select-kc.cjs.js",
+      "types" : "./types/index.d.ts"
     },
     "./style.css": "./dist/style.css"
   },
@@ -34,6 +35,7 @@
   "author": "Kamlesh Chandel",
   "license": "MIT",
   "devDependencies": {
+    "@types/react": "^19.2.10",
     "@vitejs/plugin-react": "^5.1.2",
     "vite": "^7.3.1"
   },
