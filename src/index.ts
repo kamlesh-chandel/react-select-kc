@@ -4,7 +4,7 @@ import type {
   SmartSelectProps,
 } from "./SmartSelect";
 
-import "./style.css";
+import "./styles/style.css";
 
 export default SmartSelect;
 export type { SmartSelectOption, SmartSelectProps };

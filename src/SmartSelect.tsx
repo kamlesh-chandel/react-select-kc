@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import "./style.css";
+import "./styles/style.css";
 
 export interface SmartSelectOption {
   id: string | number;
