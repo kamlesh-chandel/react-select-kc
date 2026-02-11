@@ -6,6 +6,8 @@ import React, {
   useState,
 } from "react";
 import "./styles/style.css";
+import "./styles/select.css";
+import "./styles/option.css";
 
 export interface SmartSelectOption {
   id: string | number;

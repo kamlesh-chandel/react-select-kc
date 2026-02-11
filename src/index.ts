@@ -5,6 +5,8 @@ import type {
 } from "./SmartSelect";
 
 import "./styles/style.css";
+import "./styles/select.css";
+import "./styles/option.css";
 
 export default SmartSelect;
 export type { SmartSelectOption, SmartSelectProps };

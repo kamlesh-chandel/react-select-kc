@@ -1,0 +1,82 @@
+form {
+  width: 500px;
+  height: 300px;
+  margin: 80px auto;
+  padding: 24px;
+  background-color: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px var(--shadow-black);
+}
+
+form > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--dark-gray);
+}
+
+input {
+  border: none;
+  height: 100%;
+  width: 100%;
+  padding: 0 5px;
+  font-size: 16px;
+  outline: none;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+  color: var(--black);
+}
+
+.custom-select-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--dark-gray);
+}
+
+.custom-select-trigger {
+  width: 100%;
+  min-height: 45px;
+  padding: 0px 12px 0 0;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--gray);
+  background-color: var(--white);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--black);
+}
+
+.custom-select-trigger input{
+  margin: 5px 0;
+}
+.custom-select-trigger span{
+  font-size: 15px;
+}
+.custom-select-trigger:hover {
+  border-color: var(--link-blue);
+}
+
+.custom-select-trigger p {
+  padding-left: 5px;
+}
+
+.search-view {
+  padding: 10px;
+  width: 100%;
+  border-bottom: 0.1px solid var(--gray);
+  padding-left: 170px;
+  color: var(--link-blue);
+}
