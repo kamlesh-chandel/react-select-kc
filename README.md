@@ -1,4 +1,4 @@
-# Universal Select
+# Smart Select
 
 A powerful, flexible, and feature-rich React select component with support for single/multi-select, async options, search, keyboard navigation, and infinite scrolling.
 
@@ -16,13 +16,13 @@ A powerful, flexible, and feature-rich React select component with support for s
 ## Installation
 
 ```bash
-npm i @kamleshchandel/react-select-kc
+npm i @kamlesh-chandel/smart-select
 ```
 
 or
 
 ```bash
-yarn add @kamleshchandel/react-select-kc
+yarn add @kamlesh-chandel/smart-select
 ```
 
 ## Basic Usage
@@ -30,20 +30,21 @@ yarn add @kamleshchandel/react-select-kc
 ### Single Select
 
 ```jsx
-import UniversalSelect from "@kamleshchandel/react-select-kc";
-import "@kamleshchandel/react-select-kc/style.css";
+import SmartSelect from "@kamlesh-chandel/smart-select";
+import "@kamlesh-chandel/smart-select/style.css";
 
 const options = [
   { id: 1, label: 'Option 1' },
   { id: 2, label: 'Option 2' },
   { id: 3, label: 'Option 3' },
+  { id: 4, label: 'Option 4' },
 ];
 
 function App() {
   const [value, setValue] = useState(null);
 
   return (
-    <UniversalSelect
+    <SmartSelect
       options={options}
       value={value}
       onChange={setValue}
@@ -58,7 +59,7 @@ function App() {
 ```jsx
 const [selectedValues, setSelectedValues] = useState([]);
 
-<UniversalSelect
+<SmartSelect
   options={options}
   value={selectedValues}
   onChange={setSelectedValues}
@@ -76,7 +77,7 @@ const loadAsyncOptions = async (searchQuery) => {
   return data;
 };
 
-<UniversalSelect
+<SmartSelect
   loadAsyncOptions={loadAsyncOptions}
   value={value}
   onChange={setValue}
@@ -128,7 +129,7 @@ const renderOption = (option) => (
   </div>
 );
 
-<UniversalSelect
+<SmartSelect
   options={users}
   renderOption={renderOption}
   value={selectedUser}
@@ -149,7 +150,7 @@ const renderSelectedChip = (option) => (
   </span>
 );
 
-<UniversalSelect
+<SmartSelect
   options={tags}
   isMultiSelectAllow={true}
   renderSelectedOptionChip={renderSelectedChip}
@@ -183,7 +184,7 @@ const customStyles = {
   }
 };
 
-<UniversalSelect
+<SmartSelect
   options={options}
   selectStyle={customStyles}
   value={value}
@@ -200,14 +201,14 @@ const options = [
   { id: 3, label: 'Another Available' },
 ];
 
-<UniversalSelect options={options} />
+<SmartSelect options={options} />
 ```
 
 ### Uncontrolled Component (Internal State)
 
 ```jsx
 // Value is automatically managed and persisted in localStorage
-<UniversalSelect
+<SmartSelect
   options={options}
   onChange={(value) => console.log('Selection changed:', value)}
   label="Uncontrolled Select"

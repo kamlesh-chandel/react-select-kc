@@ -1,0 +1,50 @@
+{
+  "name": "@kamlesh-chandel/smart-select",
+  "version": "1.0.2",
+  "description": "Smart controlled and uncontrolled select component for React",
+  "main": "./dist/react-select-kc.cjs.js",
+  "module": "./dist/react-select-kc.es.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/react-select-kc.es.js",
+      "require": "./dist/react-select-kc.cjs.js",
+      "default": "./dist/react-select-kc.es.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./types": "./types/index.d.ts",
+    "./types/*": "./types/*"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "scripts": {
+    "build": "vite build",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "select",
+    "dropdown",
+    "universal-select",
+    "react-component"
+  ],
+  "author": "Kamlesh Chandel",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "style": "dist/style.css"
+}
